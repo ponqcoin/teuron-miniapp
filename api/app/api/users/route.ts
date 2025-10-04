@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { NextResponse } from 'next/server';
+import { PrismaClient } from "@prisma/client";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -22,12 +22,21 @@ export async function GET() {
 
 // POST create new user
 export async function POST(req: Request) {
-  const data = await req.json();
-  const user = await prisma.user.create({
-    data: {
-      name: data.name,
-      email: data.email,
-    },
-  });
-  return NextResponse.json(user, { headers: corsHeaders });
+  try {
+    const data = await req.json();
+
+    // Create a new user with default TP = 0, taps = 0
+    const user = await prisma.user.create({
+      data: {
+        username: data.username,
+      },
+    });
+
+    return NextResponse.json(user, { headers: corsHeaders });
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers: corsHeaders }
+    );
+  }
 }
